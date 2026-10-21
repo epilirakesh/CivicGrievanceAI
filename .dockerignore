@@ -1,0 +1,15 @@
+.git
+.gitignore
+.venv
+venv
+__pycache__
+*.pyc
+*.pyo
+*.pyd
+.DS_Store
+models/indic_conformer_600m
+test_outputs/dashboard_uploads/*
+test_outputs/*
+runs
+.env
+.env.local

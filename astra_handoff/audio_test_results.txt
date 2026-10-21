@@ -1,0 +1,49 @@
+ASTRA AUDIO PIPELINE TEST RESULTS
+
+Speech model: AI4Bharat IndicConformer
+NLP model: TF-IDF character n-grams + Logistic Regression
+
+test1.mp3
+Language: Hindi
+Expected: GARBAGE_SANITATION
+Predicted: GARBAGE_SANITATION
+Result: Correct
+
+test2.mp3
+Language: Marathi
+Expected: ROADS_INFRASTRUCTURE
+Predicted: ELECTRICAL_SAFETY
+Model score: 0.2321
+Score margin: 0.0286
+Manual review: Triggered
+Result: Incorrect
+
+test6.mp3
+Language: Hindi
+Expected: WATER_SUPPLY
+Predicted: WATER_SUPPLY
+Model score: 0.2585
+Score margin: 0.0558
+Manual review: Not triggered
+Result: Correct
+
+test7.mp3
+Language: Marathi
+Expected: ROADS_INFRASTRUCTURE
+Predicted: ELECTRICAL_SAFETY
+Score margin: 0.0071
+Manual review: Triggered
+Result: Incorrect
+
+SUMMARY
+4 recordings tested.
+2 correct classifications.
+2 incorrect classifications.
+Both known errors were flagged for manual review.
+
+LIMITATIONS
+Small, non-independent functional test.
+test2 and test7 contain similar manhole complaints.
+No formal word error rate evaluation.
+Model scores are not calibrated probabilities.
+Human-reviewed independent evaluation remains pending.

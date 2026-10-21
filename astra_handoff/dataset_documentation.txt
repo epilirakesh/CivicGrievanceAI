@@ -1,0 +1,74 @@
+ASTRA — DATASET DOCUMENTATION
+
+MASTER DATASET
+File: dataset_v2/mumbai_civic_complaints_v2.csv
+Total complaints: 125
+
+FIVE NLP CATEGORIES
+ROADS_INFRASTRUCTURE: 25
+GARBAGE_SANITATION: 25
+ELECTRICAL_SAFETY: 25
+WATER_SUPPLY: 25
+OTHER_REVIEW: 25
+
+LANGUAGE DISTRIBUTION
+English: 37
+Hindi: 29
+Marathi: 30
+Hinglish: 29
+
+DATA ORIGIN
+119 examples are team-written.
+6 examples are news paraphrases.
+
+These are primarily constructed examples,
+not independently verified citizen submissions.
+
+REVIEW STATUS
+All 125 records remain pending final human review.
+
+PROVISIONAL TRAINING DATA
+File: dataset_v2/astra_training_candidates_122.csv
+Records: 122
+
+Three records excluded:
+R006
+E006
+O004
+
+The training subset is provisional and should not
+be represented as fully human-validated.
+
+QUALITY CHECKS COMPLETED
+No duplicate complaint IDs.
+No exact duplicate complaint texts.
+No empty complaint texts.
+No invalid categories.
+No invalid language labels.
+No placeholder URLs.
+
+NLP BASELINE
+Algorithm: Character TF-IDF + Logistic Regression
+Training records: 91
+Test records: 31
+Test accuracy: 80.65%
+Macro F1-score: approximately 0.80
+
+LIMITATIONS
+Evaluation used a held-out split of the
+mostly team-written provisional dataset.
+
+Independent real-world evaluation is pending.
+Dataset review is incomplete.
+Performance on actual citizen complaints
+has not yet been established.
+
+CV LABELS ARE DIFFERENT
+Prithvi's CV model uses:
+road, water, electricity.
+
+These are not directly interchangeable with
+the five NLP complaint categories.
+
+Text and image predictions require an agreed
+integration/mapping policy.

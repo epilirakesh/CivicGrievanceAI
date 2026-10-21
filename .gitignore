@@ -1,0 +1,43 @@
+# Virtual Environments
+.venv/
+venv/
+env/
+ENV/
+
+# Python Cache & Bytecode
+__pycache__/
+*.py[cod]
+*$py.class
+*.so
+.pytest_cache/
+
+# Operating System Files
+.DS_Store
+.DS_Store?
+._*
+.Spotlight-V100
+.Trashes
+Thumbs.db
+ehthumbs.db
+
+# Large Model Weights (>100MB cannot be pushed to GitHub)
+# (IndicConformer ~2.5GB is dynamically prepared on first speech request via HF Token)
+models/indic_conformer_600m/
+*.onnx
+*.tar.gz
+
+# Local SQLite Database Journals & Test Output Artifacts
+*.db-journal
+test_outputs/dashboard_uploads/*
+test_outputs/Water*
+test_outputs/annotated/
+test_outputs/service_detect/
+test_outputs/unified_test/
+test_outputs/potholes/
+test_outputs/wire*
+runs/
+
+# Environment Variables & Secrets
+.env
+.env.local
+*.bak
