@@ -702,66 +702,31 @@ def render_sidebar():
 # WELCOME / LANDING PAGE ("YOUR CITY. YOUR VOICE. OUR ACTION.")
 # =====================================================================
 def render_welcome_page():
-    """Renders the cinematic dark welcome and landing page."""
+    """Renders the polished light-theme ASTRA welcome and landing page."""
     complaints = get_all_complaints()
     c_total = len(complaints)
     c_open = sum(1 for c in complaints if c.get("status") != "Resolved")
     c_resolved = sum(1 for c in complaints if c.get("status") == "Resolved")
 
-    # Injected Scoped Dark Atmosphere Stylesheet
+    # Injected Scoped Light Theme Welcome Stylesheet
     st.markdown("""
     <style>
-        /* Scoped Dark Theme for Welcome Canvas */
-        .stApp {
-            background-color: #081426 !important;
-            color: #FFFFFF !important;
-            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif !important;
-        }
-        [data-testid="stSidebar"] {
-            background-color: #0C1A30 !important;
-            border-right: 1px solid #1E293B !important;
-        }
-        [data-testid="stSidebar"] * {
-            color: #CBD5E1 !important;
-        }
-        [data-testid="stSidebar"] div[role="radiogroup"] > label {
-            background-color: transparent !important;
-        }
-        [data-testid="stSidebar"] div[role="radiogroup"] > label:hover {
-            background-color: rgba(255, 255, 255, 0.05) !important;
-        }
-        [data-testid="stSidebar"] div[role="radiogroup"] > label:has(input:checked) {
-            background-color: rgba(59, 130, 246, 0.22) !important;
-            border: 1px solid #3B82F6 !important;
-        }
-        [data-testid="stSidebar"] div[role="radiogroup"] > label:has(input:checked) * {
-            color: #60A5FA !important;
-        }
-        .block-container {
-            padding-top: 1rem !important;
-            padding-bottom: 4rem !important;
-            padding-left: 1.5rem !important;
-            padding-right: 1.5rem !important;
-            max-width: 1240px !important;
-        }
-
-        /* Ambient Top Navigation Bar */
+        /* Scoped Welcome Page Components (Light Civic Palette) */
         .welcome-nav-bar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding: 10px 18px;
-            background: rgba(15, 23, 42, 0.65);
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            border: 1px solid rgba(59, 130, 246, 0.2);
+            padding: 12px 20px;
+            background: #FFFFFF;
+            border: 1px solid #E5EAF2;
             border-radius: 12px;
-            margin-bottom: 2rem;
+            margin-bottom: 1.75rem;
+            box-shadow: 0 2px 8px rgba(16, 24, 40, 0.04);
         }
         .nav-brand-title {
-            font-size: 1.25rem;
+            font-size: 1.22rem;
             font-weight: 800;
-            color: #FFFFFF;
+            color: #17243A;
             letter-spacing: -0.02em;
             display: flex;
             align-items: center;
@@ -770,27 +735,27 @@ def render_welcome_page():
         .nav-brand-sub {
             font-size: 0.68rem;
             font-weight: 700;
-            color: #2DD4BF;
-            background: rgba(45, 212, 191, 0.12);
-            border: 1px solid rgba(45, 212, 191, 0.3);
-            padding: 2px 7px;
+            color: #0F766E;
+            background: #CCFBF1;
+            border: 1px solid #99F6E4;
+            padding: 2px 8px;
             border-radius: 12px;
             letter-spacing: 0.05em;
         }
         .nav-links-cluster {
             display: flex;
             align-items: center;
-            gap: 22px;
+            gap: 24px;
         }
         .nav-link-a {
-            color: #94A3B8;
-            font-size: 0.86rem;
+            color: #475467;
+            font-size: 0.88rem;
             font-weight: 600;
             text-decoration: none;
             transition: color 0.15s ease-in-out;
         }
         .nav-link-a:hover {
-            color: #2DD4BF;
+            color: #2563EB;
         }
 
         /* Hero Layout */
@@ -798,74 +763,69 @@ def render_welcome_page():
             display: inline-flex;
             align-items: center;
             gap: 8px;
-            background: rgba(59, 130, 246, 0.12);
-            border: 1px solid rgba(59, 130, 246, 0.28);
-            color: #60A5FA;
+            background: #EEF4FF;
+            border: 1px solid #BFDBFE;
+            color: #1E40AF;
             font-size: 0.74rem;
             font-weight: 700;
             padding: 4px 12px;
             border-radius: 20px;
-            margin-bottom: 1rem;
+            margin-bottom: 1.2rem;
             letter-spacing: 0.04em;
         }
         .welcome-hero-headline {
-            font-size: 3.2rem;
+            font-size: 3.25rem;
             font-weight: 900;
-            line-height: 1.06;
-            color: #FFFFFF;
+            line-height: 1.08;
+            color: #17243A;
             letter-spacing: -0.03em;
-            margin: 0 0 1rem 0;
+            margin: 0 0 1.2rem 0;
         }
-        .gradient-blue {
-            background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .hero-blue {
+            color: #2563EB;
         }
-        .gradient-teal {
-            background: linear-gradient(135deg, #2DD4BF 0%, #0D9488 100%);
-            -webkit-background-clip: text;
-            -webkit-text-fill-color: transparent;
+        .hero-teal {
+            color: #0F766E;
         }
         .welcome-hero-sub {
-            font-size: 1.05rem;
-            line-height: 1.55;
-            color: #94A3B8;
-            margin-bottom: 1.5rem;
+            font-size: 1.12rem;
+            line-height: 1.6;
+            color: #475467;
+            margin-bottom: 1.75rem;
+            max-width: 540px;
         }
 
-        /* Centerpiece Map Graphic Container */
+        /* Centerpiece Civic-Map Graphic Card */
         .welcome-map-card {
-            background: rgba(15, 23, 42, 0.75);
-            border: 1px solid rgba(59, 130, 246, 0.22);
+            background: #FFFFFF;
+            border: 1px solid #E5EAF2;
             border-radius: 14px;
-            padding: 16px;
-            backdrop-filter: blur(14px);
-            -webkit-backdrop-filter: blur(14px);
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+            padding: 18px;
+            box-shadow: 0 8px 24px rgba(16, 24, 40, 0.06);
         }
         .map-meta-bar {
             display: flex;
             align-items: center;
             justify-content: space-between;
-            padding-bottom: 8px;
-            border-bottom: 1px solid rgba(59, 130, 246, 0.15);
-            margin-bottom: 10px;
-            font-size: 0.74rem;
-            color: #94A3B8;
+            padding-bottom: 10px;
+            border-bottom: 1px solid #F1F5F9;
+            margin-bottom: 12px;
+            font-size: 0.75rem;
+            color: #64748B;
             font-weight: 600;
         }
         .radar-beacon {
             width: 8px;
             height: 8px;
-            background-color: #2DD4BF;
+            background-color: #0F766E;
             border-radius: 50%;
             display: inline-block;
-            box-shadow: 0 0 8px #2DD4BF;
+            box-shadow: 0 0 0 3px rgba(15, 118, 110, 0.2);
             animation: beacon-blink 2s infinite ease-in-out;
         }
         @keyframes beacon-blink {
             0%, 100% { opacity: 1; transform: scale(1); }
-            50% { opacity: 0.35; transform: scale(1.3); }
+            50% { opacity: 0.45; transform: scale(1.3); }
         }
 
         /* Map Trace Motion */
@@ -894,16 +854,16 @@ def render_welcome_page():
             }
         }
 
-        /* Floating Live Activity Panel */
+        /* Floating Live Activity Panel Under Map */
         .map-floating-kpi-bar {
             display: flex;
             align-items: center;
             justify-content: space-around;
-            background: rgba(8, 20, 38, 0.88);
-            border: 1px solid rgba(45, 212, 191, 0.25);
+            background: #F8FAFC;
+            border: 1px solid #E2E8F0;
             border-radius: 10px;
-            padding: 10px 14px;
-            margin-top: 10px;
+            padding: 12px 14px;
+            margin-top: 14px;
         }
         .kpi-micro-stat {
             display: flex;
@@ -911,25 +871,25 @@ def render_welcome_page():
             align-items: center;
         }
         .stat-num {
-            font-size: 1.35rem;
+            font-size: 1.4rem;
             font-weight: 800;
-            color: #FFFFFF;
+            color: #17243A;
             line-height: 1.1;
         }
         .stat-lbl {
-            font-size: 0.68rem;
+            font-size: 0.7rem;
             text-transform: uppercase;
             letter-spacing: 0.05em;
-            color: #94A3B8;
+            color: #64748B;
             font-weight: 600;
-            margin-top: 2px;
+            margin-top: 3px;
         }
-        .stat-num-amber { color: #F59E0B; }
-        .stat-num-teal { color: #2DD4BF; }
+        .stat-num-amber { color: #D97706; }
+        .stat-num-teal { color: #0F766E; }
         .kpi-divider-line {
             width: 1px;
-            height: 24px;
-            background: rgba(255, 255, 255, 0.1);
+            height: 26px;
+            background: #E2E8F0;
         }
 
         /* Section Headings */
@@ -939,23 +899,23 @@ def render_welcome_page():
             text-align: center;
         }
         .section-tag-label {
-            font-size: 0.72rem;
+            font-size: 0.74rem;
             font-weight: 700;
             text-transform: uppercase;
             letter-spacing: 0.1em;
-            color: #2DD4BF;
+            color: #0F766E;
             margin-bottom: 6px;
         }
         .section-main-heading {
             font-size: 2.1rem;
             font-weight: 800;
-            color: #FFFFFF;
+            color: #17243A;
             letter-spacing: -0.02em;
             margin: 0 0 8px 0;
         }
         .section-sub-copy {
-            font-size: 0.95rem;
-            color: #94A3B8;
+            font-size: 0.98rem;
+            color: #64748B;
             max-width: 620px;
             margin: 0 auto;
             line-height: 1.5;
@@ -965,7 +925,7 @@ def render_welcome_page():
         .step-cards-grid {
             display: grid;
             grid-template-columns: repeat(3, 1fr);
-            gap: 18px;
+            gap: 20px;
             margin-bottom: 3rem;
         }
         @media (max-width: 768px) {
@@ -973,30 +933,31 @@ def render_welcome_page():
                 grid-template-columns: 1fr;
             }
             .welcome-hero-headline {
-                font-size: 2.4rem !important;
+                font-size: 2.3rem !important;
             }
         }
         .welcome-step-card {
-            background: rgba(15, 23, 42, 0.65);
-            border: 1px solid rgba(59, 130, 246, 0.18);
+            background: #FFFFFF;
+            border: 1px solid #E5EAF2;
             border-radius: 14px;
-            padding: 24px 20px;
+            padding: 24px 22px;
             display: flex;
             flex-direction: column;
             justify-content: space-between;
+            box-shadow: 0 2px 8px rgba(16, 24, 40, 0.04);
             transition: all 0.2s ease-in-out;
         }
         .welcome-step-card:hover {
-            border-color: rgba(45, 212, 191, 0.45);
+            border-color: #2563EB;
             transform: translateY(-3px);
-            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+            box-shadow: 0 10px 24px rgba(16, 24, 40, 0.08);
         }
         .step-badge-num {
             font-size: 0.72rem;
             font-weight: 800;
-            color: #2DD4BF;
-            background: rgba(45, 212, 191, 0.1);
-            border: 1px solid rgba(45, 212, 191, 0.25);
+            color: #0F766E;
+            background: #CCFBF1;
+            border: 1px solid #99F6E4;
             padding: 3px 8px;
             border-radius: 6px;
             display: inline-block;
@@ -1004,26 +965,26 @@ def render_welcome_page():
             width: fit-content;
         }
         .step-icon-tile {
-            font-size: 1.6rem;
-            margin-bottom: 8px;
+            font-size: 1.8rem;
+            margin-bottom: 10px;
         }
         .step-card-title {
-            font-size: 1.1rem;
+            font-size: 1.15rem;
             font-weight: 700;
-            color: #FFFFFF;
+            color: #17243A;
             margin-bottom: 8px;
         }
         .step-card-desc {
-            font-size: 0.85rem;
-            color: #94A3B8;
-            line-height: 1.5;
+            font-size: 0.88rem;
+            color: #475467;
+            line-height: 1.55;
         }
 
         /* Mission 4-Pillars Grid */
         .pillars-grid {
             display: grid;
             grid-template-columns: repeat(2, 1fr);
-            gap: 16px;
+            gap: 18px;
             margin-bottom: 3.5rem;
         }
         @media (max-width: 768px) {
@@ -1032,10 +993,11 @@ def render_welcome_page():
             }
         }
         .pillar-card {
-            background: rgba(15, 23, 42, 0.5);
-            border: 1px solid rgba(59, 130, 246, 0.15);
+            background: #FFFFFF;
+            border: 1px solid #E5EAF2;
             border-radius: 12px;
-            padding: 20px;
+            padding: 22px;
+            box-shadow: 0 2px 6px rgba(16, 24, 40, 0.03);
         }
         .pillar-header {
             display: flex;
@@ -1044,49 +1006,49 @@ def render_welcome_page():
             margin-bottom: 8px;
         }
         .pillar-icon {
-            font-size: 1.25rem;
+            font-size: 1.35rem;
         }
         .pillar-name {
-            font-size: 1rem;
+            font-size: 1.05rem;
             font-weight: 700;
-            color: #FFFFFF;
+            color: #17243A;
         }
         .pillar-detail {
-            font-size: 0.84rem;
-            color: #94A3B8;
-            line-height: 1.5;
+            font-size: 0.88rem;
+            color: #475467;
+            line-height: 1.55;
             margin: 0;
         }
 
         /* Closing CTA Banner */
         .welcome-closing-banner {
-            background: linear-gradient(135deg, rgba(37, 99, 235, 0.18) 0%, rgba(15, 118, 110, 0.22) 100%);
-            border: 1px solid rgba(45, 212, 191, 0.3);
+            background: linear-gradient(135deg, #EEF4FF 0%, #E6FFFA 100%);
+            border: 1px solid #BFDBFE;
             border-radius: 16px;
-            padding: 38px 24px 20px 24px;
+            padding: 38px 24px 24px 24px;
             text-align: center;
             margin-bottom: 3rem;
-            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+            box-shadow: 0 4px 14px rgba(37, 99, 235, 0.06);
         }
         .closing-headline {
             font-size: 2.1rem;
             font-weight: 900;
-            color: #FFFFFF;
+            color: #17243A;
             letter-spacing: -0.02em;
             margin: 0 0 10px 0;
         }
         .closing-subtext {
-            font-size: 0.96rem;
-            color: #CBD5E1;
+            font-size: 1rem;
+            color: #475467;
             max-width: 580px;
-            margin: 0 auto 16px auto;
-            line-height: 1.5;
+            margin: 0 auto 18px auto;
+            line-height: 1.55;
         }
 
         /* Footer */
         .welcome-footer {
-            border-top: 1px solid rgba(255, 255, 255, 0.08);
-            padding-top: 22px;
+            border-top: 1px solid #E5EAF2;
+            padding-top: 24px;
             display: flex;
             flex-direction: column;
             gap: 14px;
@@ -1101,10 +1063,10 @@ def render_welcome_page():
         .footer-brand-title {
             font-size: 1.1rem;
             font-weight: 800;
-            color: #FFFFFF;
+            color: #17243A;
         }
         .footer-brand-sub {
-            font-size: 0.76rem;
+            font-size: 0.78rem;
             color: #64748B;
         }
         .footer-links-row {
@@ -1112,17 +1074,17 @@ def render_welcome_page():
             gap: 20px;
         }
         .footer-link-a {
-            color: #94A3B8;
-            font-size: 0.8rem;
+            color: #64748B;
+            font-size: 0.82rem;
             text-decoration: none;
             transition: color 0.15s;
         }
         .footer-link-a:hover {
-            color: #2DD4BF;
+            color: #2563EB;
         }
         .footer-bottom-notice {
-            font-size: 0.73rem;
-            color: #64748B;
+            font-size: 0.75rem;
+            color: #94A3B8;
             line-height: 1.45;
         }
     </style>
@@ -1136,7 +1098,7 @@ def render_welcome_page():
         st.markdown("""
         <div class="nav-brand-title">
             <span>🏛️ ASTRA</span>
-            <span class="nav-brand-sub">CIVIC INTEL</span>
+            <span class="nav-brand-sub">CIVIC INTELLIGENCE</span>
         </div>
         """, unsafe_allow_html=True)
     with col_nav_links:
@@ -1144,11 +1106,11 @@ def render_welcome_page():
         <div class="nav-links-cluster" style="height: 100%; display: flex; align-items: center;">
             <a href="#how-it-works" class="nav-link-a">How it works</a>
             <a href="#our-mission" class="nav-link-a">Our mission</a>
-            <a href="#live-operations" class="nav-link-a">Live Activity</a>
+            <a href="#live-operations" class="nav-link-a">Defect Grid</a>
         </div>
         """, unsafe_allow_html=True)
     with col_nav_enter:
-        if st.button("Enter ASTRA ➔", key="nav_btn_enter", type="primary", use_container_width=True):
+        if st.button("Enter Dashboard ➔", key="nav_btn_enter", use_container_width=True):
             st.session_state["portal_mode_radio"] = "🏢 Operations Center (Admin)"
             st.session_state["admin_nav_radio"] = "Overview"
             st.session_state["active_view"] = "Overview"
@@ -1167,15 +1129,15 @@ def render_welcome_page():
         </div>
         <h1 class="welcome-hero-headline">
             Your City.<br>
-            <span class="gradient-blue">Your Voice.</span><br>
-            <span class="gradient-teal">Our Action.</span>
+            <span class="hero-blue">Your Voice.</span><br>
+            <span class="hero-teal">Our Action.</span>
         </h1>
         <p class="welcome-hero-sub">
-            Report civic issues, pinpoint problems on the map, and help turn everyday complaints into meaningful action.
+            Report civic issues, pinpoint problems, and help your city take action.
         </p>
         """, unsafe_allow_html=True)
 
-        col_c1, col_c2, _ = st.columns([1.5, 1.5, 1.2])
+        col_c1, col_c2, _ = st.columns([1.5, 1.5, 1.0])
         with col_c1:
             if st.button("📢 Report an Issue", key="hero_btn_report", type="primary", use_container_width=True):
                 st.session_state["portal_mode_radio"] = "👥 Citizen Registration Portal"
@@ -1183,14 +1145,14 @@ def render_welcome_page():
                 st.session_state["active_view"] = "Report a Civic Issue"
                 st.rerun()
         with col_c2:
-            if st.button("🌐 Explore ASTRA", key="hero_btn_explore", use_container_width=True):
+            if st.button("🏢 Enter Dashboard", key="hero_btn_dashboard", use_container_width=True):
                 st.session_state["portal_mode_radio"] = "🏢 Operations Center (Admin)"
                 st.session_state["admin_nav_radio"] = "Overview"
                 st.session_state["active_view"] = "Overview"
                 st.rerun()
 
         st.markdown("""
-        <div style="margin-top: 1.5rem; display: flex; align-items: center; gap: 10px; font-size: 0.8rem; color: #94A3B8;">
+        <div style="margin-top: 1.5rem; display: flex; align-items: center; gap: 10px; font-size: 0.82rem; color: #64748B;">
             <span class="radar-beacon"></span>
             <span>Active Municipal Intelligence & Triage Desk • Mumbai Division</span>
         </div>
@@ -1207,74 +1169,76 @@ def render_welcome_page():
                 <span>18.96° N, 72.82° E</span>
             </div>
 
-            <svg viewBox="0 0 760 420" style="width: 100%; height: auto; display: block;" xmlns="http://www.w3.org/2000/svg">
-                <defs>
-                    <linearGradient id="routeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
-                        <stop offset="0%" stop-color="#3B82F6"/>
-                        <stop offset="50%" stop-color="#2DD4BF"/>
-                        <stop offset="100%" stop-color="#60A5FA"/>
-                    </linearGradient>
-                    <filter id="glowTeal" x="-20%" y="-20%" width="140%" height="140%">
-                        <feGaussianBlur stdDeviation="3" result="blur" />
-                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                    </filter>
-                    <filter id="glowBlue" x="-20%" y="-20%" width="140%" height="140%">
-                        <feGaussianBlur stdDeviation="4" result="blur" />
-                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
-                    </filter>
-                </defs>
+            <div style="background: #F8FAFC; border-radius: 10px; padding: 6px; border: 1px solid #E2E8F0;">
+                <svg viewBox="0 0 760 420" style="width: 100%; height: auto; display: block;" xmlns="http://www.w3.org/2000/svg">
+                    <defs>
+                        <linearGradient id="routeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                            <stop offset="0%" stop-color="#2563EB"/>
+                            <stop offset="50%" stop-color="#0F766E"/>
+                            <stop offset="100%" stop-color="#3B82F6"/>
+                        </linearGradient>
+                        <filter id="glowTeal" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="3" result="blur" />
+                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
+                        <filter id="glowBlue" x="-20%" y="-20%" width="140%" height="140%">
+                            <feGaussianBlur stdDeviation="3" result="blur" />
+                            <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                        </filter>
+                    </defs>
 
-                <!-- Blueprint Urban Grid -->
-                <g stroke="rgba(59, 130, 246, 0.08)" stroke-width="1">
-                    <line x1="50" y1="0" x2="50" y2="420" />
-                    <line x1="140" y1="0" x2="140" y2="420" />
-                    <line x1="230" y1="0" x2="230" y2="420" />
-                    <line x1="320" y1="0" x2="320" y2="420" />
-                    <line x1="410" y1="0" x2="410" y2="420" />
-                    <line x1="500" y1="0" x2="500" y2="420" />
-                    <line x1="590" y1="0" x2="590" y2="420" />
-                    <line x1="680" y1="0" x2="680" y2="420" />
-                    <line x1="0" y1="70" x2="760" y2="70" />
-                    <line x1="0" y1="140" x2="760" y2="140" />
-                    <line x1="0" y1="210" x2="760" y2="210" />
-                    <line x1="0" y1="280" x2="760" y2="280" />
-                    <line x1="0" y1="350" x2="760" y2="350" />
-                </g>
+                    <!-- Light Blueprint Urban Grid -->
+                    <g stroke="#E2E8F0" stroke-width="1">
+                        <line x1="50" y1="0" x2="50" y2="420" />
+                        <line x1="140" y1="0" x2="140" y2="420" />
+                        <line x1="230" y1="0" x2="230" y2="420" />
+                        <line x1="320" y1="0" x2="320" y2="420" />
+                        <line x1="410" y1="0" x2="410" y2="420" />
+                        <line x1="500" y1="0" x2="500" y2="420" />
+                        <line x1="590" y1="0" x2="590" y2="420" />
+                        <line x1="680" y1="0" x2="680" y2="420" />
+                        <line x1="0" y1="70" x2="760" y2="70" />
+                        <line x1="0" y1="140" x2="760" y2="140" />
+                        <line x1="0" y1="210" x2="760" y2="210" />
+                        <line x1="0" y1="280" x2="760" y2="280" />
+                        <line x1="0" y1="350" x2="760" y2="350" />
+                    </g>
 
-                <!-- Coastal Marine Contour -->
-                <path d="M 120 40 Q 140 120 180 180 T 150 290 Q 110 350 170 410" fill="none" stroke="rgba(45, 212, 191, 0.35)" stroke-width="2.5" stroke-dasharray="4 4" />
+                    <!-- Coastal Marine Shoreline Contour -->
+                    <path d="M 120 40 Q 140 120 180 180 T 150 290 Q 110 350 170 410" fill="none" stroke="#0F766E" stroke-width="2" stroke-dasharray="4 4" opacity="0.45" />
 
-                <!-- Urban Highway Arteries -->
-                <path d="M 150 380 L 260 310 L 380 280 L 520 190 L 680 140" fill="none" stroke="rgba(59, 130, 246, 0.32)" stroke-width="3" />
-                <path d="M 260 310 L 240 180 L 320 120 L 490 80" fill="none" stroke="rgba(59, 130, 246, 0.25)" stroke-width="2.2" />
-                <path d="M 380 280 L 410 390 L 580 360 L 680 280" fill="none" stroke="rgba(45, 212, 191, 0.28)" stroke-width="2.2" />
-                <path d="M 180 180 L 320 120 L 460 210 L 520 190" fill="none" stroke="rgba(59, 130, 246, 0.28)" stroke-width="2" />
+                    <!-- Urban Highway Arteries -->
+                    <path d="M 150 380 L 260 310 L 380 280 L 520 190 L 680 140" fill="none" stroke="#93C5FD" stroke-width="3" opacity="0.6" />
+                    <path d="M 260 310 L 240 180 L 320 120 L 490 80" fill="none" stroke="#93C5FD" stroke-width="2.2" opacity="0.5" />
+                    <path d="M 380 280 L 410 390 L 580 360 L 680 280" fill="none" stroke="#99F6E4" stroke-width="2.2" opacity="0.6" />
+                    <path d="M 180 180 L 320 120 L 460 210 L 520 190" fill="none" stroke="#93C5FD" stroke-width="2" opacity="0.5" />
 
-                <!-- Animated Glowing Route Traces -->
-                <path class="map-trace-line" d="M 150 380 L 260 310 L 380 280 L 520 190 L 680 140" fill="none" stroke="url(#routeGrad)" stroke-width="3" stroke-dasharray="24 160" filter="url(#glowBlue)" />
-                <path class="map-trace-line-alt" d="M 380 280 L 410 390 L 580 360 L 680 280" fill="none" stroke="#2DD4BF" stroke-width="2.5" stroke-dasharray="16 140" filter="url(#glowTeal)" />
+                    <!-- Animated Glowing Route Traces -->
+                    <path class="map-trace-line" d="M 150 380 L 260 310 L 380 280 L 520 190 L 680 140" fill="none" stroke="url(#routeGrad)" stroke-width="3.2" stroke-dasharray="24 160" filter="url(#glowBlue)" />
+                    <path class="map-trace-line-alt" d="M 380 280 L 410 390 L 580 360 L 680 280" fill="none" stroke="#0F766E" stroke-width="2.6" stroke-dasharray="16 140" filter="url(#glowTeal)" />
 
-                <!-- Ward Hotspot Nodes -->
-                <circle cx="150" cy="380" r="16" fill="none" stroke="#3B82F6" stroke-width="1.2" class="pulse-ring-slow" opacity="0.6" />
-                <circle cx="150" cy="380" r="5" fill="#3B82F6" filter="url(#glowBlue)" />
-                <text x="120" y="405" fill="#94A3B8" font-size="10" font-family="monospace">Ward A (Colaba)</text>
+                    <!-- Ward Hotspot Nodes (South Mumbai Wards) -->
+                    <circle cx="150" cy="380" r="16" fill="none" stroke="#2563EB" stroke-width="1.2" class="pulse-ring-slow" opacity="0.4" />
+                    <circle cx="150" cy="380" r="5" fill="#2563EB" />
+                    <text x="120" y="405" fill="#475467" font-size="10.5" font-family="-apple-system, sans-serif" font-weight="600">Ward A (Colaba)</text>
 
-                <circle cx="260" cy="310" r="18" fill="none" stroke="#2DD4BF" stroke-width="1.2" class="pulse-ring-slow" opacity="0.7" />
-                <circle cx="260" cy="310" r="5.5" fill="#2DD4BF" filter="url(#glowTeal)" />
-                <text x="240" y="295" fill="#E2E8F0" font-size="11" font-weight="600">Ward D (Malabar Hill)</text>
+                    <circle cx="260" cy="310" r="18" fill="none" stroke="#0F766E" stroke-width="1.2" class="pulse-ring-slow" opacity="0.4" />
+                    <circle cx="260" cy="310" r="5.5" fill="#0F766E" />
+                    <text x="235" y="295" fill="#17243A" font-size="11" font-weight="700">Ward D (Malabar Hill)</text>
 
-                <circle cx="380" cy="280" r="20" fill="none" stroke="#3B82F6" stroke-width="1.2" class="pulse-ring-slow" opacity="0.6" />
-                <circle cx="380" cy="280" r="6" fill="#60A5FA" filter="url(#glowBlue)" />
-                <text x="360" y="260" fill="#E2E8F0" font-size="11" font-weight="600">Ward F/S (Parel)</text>
+                    <circle cx="380" cy="280" r="20" fill="none" stroke="#2563EB" stroke-width="1.2" class="pulse-ring-slow" opacity="0.4" />
+                    <circle cx="380" cy="280" r="6" fill="#2563EB" />
+                    <text x="360" y="260" fill="#17243A" font-size="11" font-weight="700">Ward F/S (Parel)</text>
 
-                <circle cx="240" cy="180" r="15" fill="none" stroke="#2DD4BF" stroke-width="1" class="pulse-ring-slow" opacity="0.6" />
-                <circle cx="240" cy="180" r="5" fill="#2DD4BF" filter="url(#glowTeal)" />
-                <text x="180" y="170" fill="#94A3B8" font-size="10" font-family="monospace">Ward G/S (Worli)</text>
+                    <circle cx="240" cy="180" r="15" fill="none" stroke="#0F766E" stroke-width="1" class="pulse-ring-slow" opacity="0.4" />
+                    <circle cx="240" cy="180" r="5" fill="#0F766E" />
+                    <text x="180" y="170" fill="#475467" font-size="10.5" font-family="-apple-system, sans-serif" font-weight="600">Ward G/S (Worli)</text>
 
-                <circle cx="520" cy="190" r="22" fill="none" stroke="#3B82F6" stroke-width="1.4" class="pulse-ring-slow" opacity="0.7" />
-                <circle cx="520" cy="190" r="6.5" fill="#3B82F6" filter="url(#glowBlue)" />
-                <text x="500" y="170" fill="#E2E8F0" font-size="11" font-weight="700">Ward G/N (Dadar)</text>
-            </svg>
+                    <circle cx="520" cy="190" r="22" fill="none" stroke="#2563EB" stroke-width="1.4" class="pulse-ring-slow" opacity="0.4" />
+                    <circle cx="520" cy="190" r="6.5" fill="#2563EB" />
+                    <text x="500" y="170" fill="#17243A" font-size="11" font-weight="700">Ward G/N (Dadar)</text>
+                </svg>
+            </div>
 
             <!-- Floating Real Data Activity Panel -->
             <div class="map-floating-kpi-bar">
@@ -1320,7 +1284,7 @@ def render_welcome_page():
 
         <div class="welcome-step-card">
             <div>
-                <span class="step-badge-num">02 / LOCATE</span>
+                <span class="step-badge-num">02 / PINPOINT</span>
                 <div class="step-icon-tile">📍</div>
                 <div class="step-card-title">Geographic Precision</div>
                 <p class="step-card-desc">
@@ -1407,7 +1371,7 @@ def render_welcome_page():
 
     col_cl1, col_cl2, col_cl3 = st.columns([1.5, 2, 1.5])
     with col_cl2:
-        if st.button("🚀 Get Started with ASTRA", key="closing_btn_get_started", type="primary", use_container_width=True):
+        if st.button("📢 Report an Issue", key="closing_btn_report", type="primary", use_container_width=True):
             st.session_state["portal_mode_radio"] = "👥 Citizen Registration Portal"
             st.session_state["citizen_nav_radio"] = "Report a Civic Issue"
             st.session_state["active_view"] = "Report a Civic Issue"
@@ -1426,7 +1390,7 @@ def render_welcome_page():
             <div class="footer-links-row">
                 <a href="#how-it-works" class="footer-link-a">How it works</a>
                 <a href="#our-mission" class="footer-link-a">Our mission</a>
-                <a href="#live-operations" class="footer-link-a">Live Activity</a>
+                <a href="#live-operations" class="footer-link-a">Defect Grid</a>
             </div>
         </div>
         <div class="footer-bottom-notice">
@@ -1434,6 +1398,228 @@ def render_welcome_page():
         </div>
     </div>
     """, unsafe_allow_html=True)
+
+
+# =====================================================================
+# INTERACTIVE LEAFLET MAP COMPONENT (REPLACES PYDECK)
+# =====================================================================
+def render_interactive_leaflet_map(geocoded_complaints: List[Dict[str, Any]], height: int = 380, title: str = "Live Operations Map"):
+    """
+    Renders an interactive, zoomable Leaflet map with OpenStreetMap tiles.
+    - Zero external python dependencies (uses streamlit.components.v1.html).
+    - Renders real complaint coordinates with interactive markers.
+    - Marker click opens popup with ID, category, priority, status, address, SLA.
+    - Color-coded: Red (Critical/High), Blue (Medium/Low), Green (Resolved).
+    - If complaints have no coordinates, displays a clean empty state card explaining location data is unavailable.
+    - Fully zoomable (+/- controls, mouse wheel, touch pan) with clear legend.
+    """
+    if not geocoded_complaints:
+        st.markdown("""
+        <div style="background-color: #F8FAFC; border: 1px dashed #CBD5E1; border-radius: 12px; padding: 46px 20px; text-align: center; margin-bottom: 12px;">
+            <div style="font-size: 2.4rem; margin-bottom: 8px;">📍</div>
+            <div style="font-weight: 700; color: #17243A; font-size: 1.05rem; margin-bottom: 6px;">Location Data Unavailable</div>
+            <div style="font-size: 0.84rem; color: #667085; max-width: 340px; margin: 0 auto; line-height: 1.5;">
+                No complaints with saved GPS coordinates are currently recorded. Grievances submitted via the citizen portal will appear here live with interactive status markers.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        return
+
+    # Extract valid coordinates
+    valid_points = []
+    for c in geocoded_complaints:
+        try:
+            lat = float(c["latitude"])
+            lon = float(c["longitude"])
+            if -90 <= lat <= 90 and -180 <= lon <= 180:
+                valid_points.append((c, lat, lon))
+        except (ValueError, TypeError, KeyError):
+            continue
+
+    if not valid_points:
+        st.markdown("""
+        <div style="background-color: #F8FAFC; border: 1px dashed #CBD5E1; border-radius: 12px; padding: 46px 20px; text-align: center; margin-bottom: 12px;">
+            <div style="font-size: 2.4rem; margin-bottom: 8px;">📍</div>
+            <div style="font-weight: 700; color: #17243A; font-size: 1.05rem; margin-bottom: 6px;">Location Data Unavailable</div>
+            <div style="font-size: 0.84rem; color: #667085; max-width: 340px; margin: 0 auto; line-height: 1.5;">
+                No valid GPS coordinates could be parsed from current complaint records.
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+        return
+
+    # Compute center point
+    avg_lat = sum(p[1] for p in valid_points) / len(valid_points)
+    avg_lon = sum(p[2] for p in valid_points) / len(valid_points)
+
+    # Format markers
+    markers_data = []
+    for c, lat, lon in valid_points:
+        cid = c.get("complaint_id", "Unknown")
+        cat = c.get("text_category") or c.get("category") or "Civil Issue"
+        prio = c.get("priority", "Medium")
+        stat = c.get("status", "New")
+        loc_str = c.get("location") or f"{lat:.4f}° N, {lon:.4f}° E"
+        sla_info = compute_sla_metrics(c)
+        sla_str = sla_info.get("sla_str", "")
+
+        if stat == "Resolved":
+            marker_color = "#16A34A"
+            badge_bg = "#DCFCE7"
+            badge_color = "#166534"
+        elif prio in ("Critical", "High"):
+            marker_color = "#DC2626"
+            badge_bg = "#FEE2E2"
+            badge_color = "#991B1B"
+        else:
+            marker_color = "#2563EB"
+            badge_bg = "#DBEAFE"
+            badge_color = "#1E40AF"
+
+        markers_data.append({
+            "lat": lat,
+            "lon": lon,
+            "id": cid,
+            "category": cat,
+            "priority": prio,
+            "status": stat,
+            "location": loc_str,
+            "sla": sla_str,
+            "color": marker_color,
+            "badge_bg": badge_bg,
+            "badge_color": badge_color
+        })
+
+    markers_json = json.dumps(markers_data)
+
+    leaflet_html = f"""
+    <!DOCTYPE html>
+    <html lang="en">
+    <head>
+        <meta charset="utf-8" />
+        <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+        <link rel="stylesheet" href="https://unpkg.com/leaflet@1.9.4/dist/leaflet.css" integrity="sha256-p4NxAoJBhIIN+hmNHrzRCf9tD/miZyoHS5obTRR9BMY=" crossorigin="" />
+        <script src="https://unpkg.com/leaflet@1.9.4/dist/leaflet.js" integrity="sha256-20nQCchB9co0qIjJZRGuk2/Z9VM+kNiyxNV1lvTlZBo=" crossorigin=""></script>
+        <style>
+            html, body {{
+                height: 100%;
+                margin: 0;
+                padding: 0;
+                background-color: #F8FAFC;
+                font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif;
+            }}
+            #map {{
+                width: 100%;
+                height: 100%;
+                border-radius: 10px;
+                border: 1px solid #E2E8F0;
+                box-sizing: border-box;
+            }}
+            .custom-popup .leaflet-popup-content-wrapper {{
+                border-radius: 8px;
+                padding: 4px;
+                box-shadow: 0 4px 14px rgba(15, 23, 42, 0.16);
+                border: 1px solid #CBD5E1;
+            }}
+            .custom-popup .leaflet-popup-content {{
+                margin: 8px 10px;
+                font-size: 12px;
+                line-height: 1.45;
+                color: #17243A;
+            }}
+            .legend-card {{
+                position: absolute;
+                bottom: 12px;
+                right: 12px;
+                background: rgba(255, 255, 255, 0.95);
+                backdrop-filter: blur(8px);
+                border: 1px solid #CBD5E1;
+                border-radius: 8px;
+                padding: 6px 10px;
+                font-size: 11px;
+                font-weight: 600;
+                color: #334155;
+                z-index: 1000;
+                box-shadow: 0 2px 8px rgba(0,0,0,0.08);
+                display: flex;
+                gap: 10px;
+                align-items: center;
+            }}
+            .legend-item {{
+                display: flex;
+                align-items: center;
+                gap: 5px;
+            }}
+            .legend-dot {{
+                width: 9px;
+                height: 9px;
+                border-radius: 50%;
+                display: inline-block;
+            }}
+        </style>
+    </head>
+    <body>
+        <div id="map"></div>
+        <div class="legend-card">
+            <span class="legend-item"><span class="legend-dot" style="background:#DC2626;"></span> Critical / High</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#2563EB;"></span> Medium / Low</span>
+            <span class="legend-item"><span class="legend-dot" style="background:#16A34A;"></span> Resolved</span>
+        </div>
+        <script>
+            var map = L.map('map', {{
+                zoomControl: true,
+                scrollWheelZoom: true
+            }}).setView([{avg_lat}, {avg_lon}], 13);
+
+            L.tileLayer('https://{{s}}.tile.openstreetmap.org/{{z}}/{{x}}/{{y}}.png', {{
+                maxZoom: 19,
+                attribution: '&copy; <a href="https://www.openstreetmap.org/copyright" target="_blank">OpenStreetMap</a>'
+            }}).addTo(map);
+
+            var markers = {markers_json};
+            var bounds = [];
+
+            markers.forEach(function(item) {{
+                var marker = L.circleMarker([item.lat, item.lon], {{
+                    radius: 8,
+                    fillColor: item.color,
+                    color: '#FFFFFF',
+                    weight: 2,
+                    opacity: 1,
+                    fillOpacity: 0.9
+                }}).addTo(map);
+
+                var slaHtml = item.sla ? `<div style="font-size:10px; color:#0F766E; margin-top:2px;"><b>SLA:</b> ${{item.sla}}</div>` : '';
+                var popupContent = `
+                    <div style="min-width: 175px;">
+                        <div style="display:flex; justify-content:space-between; align-items:center; margin-bottom:4px;">
+                            <strong style="color:#17243A; font-size:12px;">${{item.id}}</strong>
+                            <span style="background:${{item.badge_bg}}; color:${{item.badge_color}}; padding:1px 6px; border-radius:4px; font-size:9px; font-weight:700;">${{item.priority.toUpperCase()}}</span>
+                        </div>
+                        <div style="color:#475467; font-size:11px; margin-bottom:2px;"><b>Category:</b> ${{item.category}}</div>
+                        <div style="color:#475467; font-size:11px; margin-bottom:2px;"><b>Status:</b> ${{item.status}}</div>
+                        ${{slaHtml}}
+                        <div style="color:#667085; font-size:10px; margin-top:4px; border-top:1px solid #E2E8F0; padding-top:3px;">
+                            📍 ${{item.location}}
+                        </div>
+                    </div>
+                `;
+                marker.bindPopup(popupContent, {{ className: 'custom-popup' }});
+                bounds.push([item.lat, item.lon]);
+            }});
+
+            if (bounds.length > 1) {{
+                map.fitBounds(bounds, {{ padding: [30, 30] }});
+            }}
+
+            setTimeout(function() {{
+                map.invalidateSize();
+            }}, 200);
+        </script>
+    </body>
+    </html>
+    """
+    components.html(leaflet_html, height=height)
 
 
 # =====================================================================
@@ -1658,67 +1844,21 @@ def render_admin_dashboard():
         """, unsafe_allow_html=True)
 
         geocoded = [c for c in complaints if c.get("latitude") is not None and c.get("longitude") is not None]
-        if not geocoded:
-            st.markdown("""
-            <div style="background-color: #F8FAFC; border: 1px dashed #CBD5E1; border-radius: 10px; padding: 48px 20px; text-align: center; margin-bottom: 12px;">
-                <div style="font-size: 2.2rem; margin-bottom: 8px;">📍</div>
-                <div style="font-weight: 700; color: #17243A; font-size: 0.98rem;">No Geocoded Grievances Yet</div>
-                <div style="font-size: 0.82rem; color: #667085; max-width: 320px; margin: 6px auto 0 auto; line-height: 1.4;">
-                    Complaints submitted via device GPS will be plotted live on this map with priority and status markers.
-                </div>
-            </div>
-            """, unsafe_allow_html=True)
-        else:
-            map_data = []
-            for c in geocoded:
-                priority = c.get("priority", "Medium")
-                color = [220, 38, 38, 220] if priority in ("Critical", "High") else [37, 99, 235, 200]
-                if c.get("status") == "Resolved":
-                    color = [22, 163, 74, 200]
-
-                map_data.append({
-                    "lat": float(c["latitude"]),
-                    "lon": float(c["longitude"]),
-                    "id": c["complaint_id"],
-                    "priority": priority,
-                    "status": c.get("status", "New"),
-                    "category": c.get("text_category", "Civil"),
-                    "color": color
-                })
-            df_map = pd.DataFrame(map_data)
-            st.pydeck_chart(pdk.Deck(
-                map_style=None,
-                initial_view_state=pdk.ViewState(
-                    latitude=df_map["lat"].mean(),
-                    longitude=df_map["lon"].mean(),
-                    zoom=11.5,
-                    pitch=0
-                ),
-                layers=[
-                    pdk.Layer(
-                        "ScatterplotLayer",
-                        data=df_map,
-                        get_position="[lon, lat]",
-                        get_color="color",
-                        get_radius=140,
-                        pickable=True
-                    )
-                ],
-                tooltip={"text": "{id}: {category} ({priority})\nStatus: {status}"}
-            ), use_container_width=True)
+        render_interactive_leaflet_map(geocoded, height=360, title="Live Operations Map")
 
         # Under-map legend
-        high_cnt = sum(1 for c in geocoded if c.get("priority") in ("Critical", "High"))
-        med_cnt = sum(1 for c in geocoded if c.get("priority") not in ("Critical", "High") and c.get("status") != "Resolved")
-        res_cnt = sum(1 for c in geocoded if c.get("status") == "Resolved")
+        if geocoded:
+            high_cnt = sum(1 for c in geocoded if c.get("priority") in ("Critical", "High"))
+            med_cnt = sum(1 for c in geocoded if c.get("priority") not in ("Critical", "High") and c.get("status") != "Resolved")
+            res_cnt = sum(1 for c in geocoded if c.get("status") == "Resolved")
 
-        st.markdown(f"""
-        <div class="map-legend">
-            <span class="legend-item"><span class="dot-red"></span> High / Critical ({high_cnt})</span>
-            <span class="legend-item"><span class="dot-blue"></span> Medium / Low ({med_cnt})</span>
-            <span class="legend-item"><span class="dot-green"></span> Resolved ({res_cnt})</span>
-        </div>
-        """, unsafe_allow_html=True)
+            st.markdown(f"""
+            <div class="map-legend">
+                <span class="legend-item"><span class="dot-red"></span> High / Critical ({high_cnt})</span>
+                <span class="legend-item"><span class="dot-blue"></span> Medium / Low ({med_cnt})</span>
+                <span class="legend-item"><span class="dot-green"></span> Resolved ({res_cnt})</span>
+            </div>
+            """, unsafe_allow_html=True)
 
     st.markdown("<div style='height: 20px;'></div>", unsafe_allow_html=True)
 
@@ -2297,45 +2437,7 @@ def render_full_live_map():
     complaints = get_all_complaints()
     geocoded = [c for c in complaints if c.get("latitude") is not None and c.get("longitude") is not None]
 
-    if not geocoded:
-        st.info("No complaints with GPS coordinates have been registered yet.")
-    else:
-        map_data = []
-        for c in geocoded:
-            p = c.get("priority", "Medium")
-            col = [220, 38, 38, 220] if p in ("Critical", "High") else [37, 99, 235, 200]
-            if c.get("status") == "Resolved":
-                col = [22, 163, 74, 200]
-            map_data.append({
-                "lat": float(c["latitude"]),
-                "lon": float(c["longitude"]),
-                "id": c["complaint_id"],
-                "category": c.get("text_category", "General"),
-                "priority": p,
-                "status": c.get("status", "New"),
-                "color": col
-            })
-        df = pd.DataFrame(map_data)
-        st.pydeck_chart(pdk.Deck(
-            map_style=None,
-            initial_view_state=pdk.ViewState(
-                latitude=df["lat"].mean(),
-                longitude=df["lon"].mean(),
-                zoom=12,
-                pitch=0
-            ),
-            layers=[
-                pdk.Layer(
-                    "ScatterplotLayer",
-                    data=df,
-                    get_position="[lon, lat]",
-                    get_color="color",
-                    get_radius=150,
-                    pickable=True
-                )
-            ],
-            tooltip={"text": "{id}: {category} ({priority})\nStatus: {status}"}
-        ), use_container_width=True)
+    render_interactive_leaflet_map(geocoded, height=580, title="City-Wide Live Complaint Map")
 
 
 # =====================================================================
