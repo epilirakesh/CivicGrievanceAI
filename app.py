@@ -613,6 +613,8 @@ def compute_aggregate_kpis(complaints: List[Dict[str, Any]]) -> Dict[str, Any]:
 # =====================================================================
 # SIDEBAR APPLICATION SHELL
 # =====================================================================
+# SIDEBAR APPLICATION SHELL
+# =====================================================================
 def render_sidebar():
     """Renders the persistent desktop sidebar (230-250px) with grouped navigation."""
     with st.sidebar:
@@ -623,16 +625,40 @@ def render_sidebar():
         </div>
         """, unsafe_allow_html=True)
 
+        mode_options = [
+            "✨ Welcome & Overview",
+            "🏢 Operations Center (Admin)",
+            "👥 Citizen Registration Portal"
+        ]
+        cur_mode = st.session_state.get("portal_mode_radio", "✨ Welcome & Overview")
+        if cur_mode not in mode_options:
+            cur_mode = "✨ Welcome & Overview"
+        default_idx = mode_options.index(cur_mode)
+
         mode_selection = st.radio(
             "Portal Workspace",
-            ["🏢 Operations Center (Admin)", "👥 Citizen Registration Portal"],
+            mode_options,
+            index=default_idx,
             label_visibility="collapsed",
             key="portal_mode_radio"
         )
 
         st.markdown("<div style='height: 12px;'></div>", unsafe_allow_html=True)
 
-        if mode_selection == "🏢 Operations Center (Admin)":
+        if mode_selection == "✨ Welcome & Overview":
+            st.session_state["active_view"] = "Welcome"
+            st.markdown("<p style='font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: #64748B; letter-spacing: 0.05em; margin: 8px 0 6px 0;'>Quick Access</p>", unsafe_allow_html=True)
+            if st.button("📢 Report a Civic Issue", key="side_to_report", use_container_width=True, type="primary"):
+                st.session_state["portal_mode_radio"] = "👥 Citizen Registration Portal"
+                st.session_state["citizen_nav_radio"] = "Report a Civic Issue"
+                st.session_state["active_view"] = "Report a Civic Issue"
+                st.rerun()
+            if st.button("🏢 Operations Center", key="side_to_ops", use_container_width=True):
+                st.session_state["portal_mode_radio"] = "🏢 Operations Center (Admin)"
+                st.session_state["admin_nav_radio"] = "Overview"
+                st.session_state["active_view"] = "Overview"
+                st.rerun()
+        elif mode_selection == "🏢 Operations Center (Admin)":
             st.markdown("<p style='font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: #667085; letter-spacing: 0.05em; margin-bottom: 4px;'>Workspace</p>", unsafe_allow_html=True)
             admin_view = st.radio(
                 "Workspace Navigation",
@@ -641,6 +667,11 @@ def render_sidebar():
                 key="admin_nav_radio"
             )
             st.session_state["active_view"] = admin_view
+            st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+            if st.button("🏠 Welcome Page", key="side_back_welcome_admin", use_container_width=True):
+                st.session_state["portal_mode_radio"] = "✨ Welcome & Overview"
+                st.session_state["active_view"] = "Welcome"
+                st.rerun()
         else:
             st.markdown("<p style='font-size: 0.72rem; text-transform: uppercase; font-weight: 700; color: #667085; letter-spacing: 0.05em; margin-bottom: 4px;'>Citizen Services</p>", unsafe_allow_html=True)
             citizen_view = st.radio(
@@ -650,6 +681,11 @@ def render_sidebar():
                 key="citizen_nav_radio"
             )
             st.session_state["active_view"] = citizen_view
+            st.markdown("<div style='height: 10px;'></div>", unsafe_allow_html=True)
+            if st.button("🏠 Welcome Page", key="side_back_welcome_cit", use_container_width=True):
+                st.session_state["portal_mode_radio"] = "✨ Welcome & Overview"
+                st.session_state["active_view"] = "Welcome"
+                st.rerun()
 
         st.markdown("""
         <div class="admin-profile-box">
@@ -660,6 +696,744 @@ def render_sidebar():
             </div>
         </div>
         """, unsafe_allow_html=True)
+
+
+# =====================================================================
+# WELCOME / LANDING PAGE ("YOUR CITY. YOUR VOICE. OUR ACTION.")
+# =====================================================================
+def render_welcome_page():
+    """Renders the cinematic dark welcome and landing page."""
+    complaints = get_all_complaints()
+    c_total = len(complaints)
+    c_open = sum(1 for c in complaints if c.get("status") != "Resolved")
+    c_resolved = sum(1 for c in complaints if c.get("status") == "Resolved")
+
+    # Injected Scoped Dark Atmosphere Stylesheet
+    st.markdown("""
+    <style>
+        /* Scoped Dark Theme for Welcome Canvas */
+        .stApp {
+            background-color: #081426 !important;
+            color: #FFFFFF !important;
+            font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, "Inter", sans-serif !important;
+        }
+        [data-testid="stSidebar"] {
+            background-color: #0C1A30 !important;
+            border-right: 1px solid #1E293B !important;
+        }
+        [data-testid="stSidebar"] * {
+            color: #CBD5E1 !important;
+        }
+        [data-testid="stSidebar"] div[role="radiogroup"] > label {
+            background-color: transparent !important;
+        }
+        [data-testid="stSidebar"] div[role="radiogroup"] > label:hover {
+            background-color: rgba(255, 255, 255, 0.05) !important;
+        }
+        [data-testid="stSidebar"] div[role="radiogroup"] > label:has(input:checked) {
+            background-color: rgba(59, 130, 246, 0.22) !important;
+            border: 1px solid #3B82F6 !important;
+        }
+        [data-testid="stSidebar"] div[role="radiogroup"] > label:has(input:checked) * {
+            color: #60A5FA !important;
+        }
+        .block-container {
+            padding-top: 1rem !important;
+            padding-bottom: 4rem !important;
+            padding-left: 1.5rem !important;
+            padding-right: 1.5rem !important;
+            max-width: 1240px !important;
+        }
+
+        /* Ambient Top Navigation Bar */
+        .welcome-nav-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding: 10px 18px;
+            background: rgba(15, 23, 42, 0.65);
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            border: 1px solid rgba(59, 130, 246, 0.2);
+            border-radius: 12px;
+            margin-bottom: 2rem;
+        }
+        .nav-brand-title {
+            font-size: 1.25rem;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.02em;
+            display: flex;
+            align-items: center;
+            gap: 8px;
+        }
+        .nav-brand-sub {
+            font-size: 0.68rem;
+            font-weight: 700;
+            color: #2DD4BF;
+            background: rgba(45, 212, 191, 0.12);
+            border: 1px solid rgba(45, 212, 191, 0.3);
+            padding: 2px 7px;
+            border-radius: 12px;
+            letter-spacing: 0.05em;
+        }
+        .nav-links-cluster {
+            display: flex;
+            align-items: center;
+            gap: 22px;
+        }
+        .nav-link-a {
+            color: #94A3B8;
+            font-size: 0.86rem;
+            font-weight: 600;
+            text-decoration: none;
+            transition: color 0.15s ease-in-out;
+        }
+        .nav-link-a:hover {
+            color: #2DD4BF;
+        }
+
+        /* Hero Layout */
+        .hero-tag-pill {
+            display: inline-flex;
+            align-items: center;
+            gap: 8px;
+            background: rgba(59, 130, 246, 0.12);
+            border: 1px solid rgba(59, 130, 246, 0.28);
+            color: #60A5FA;
+            font-size: 0.74rem;
+            font-weight: 700;
+            padding: 4px 12px;
+            border-radius: 20px;
+            margin-bottom: 1rem;
+            letter-spacing: 0.04em;
+        }
+        .welcome-hero-headline {
+            font-size: 3.2rem;
+            font-weight: 900;
+            line-height: 1.06;
+            color: #FFFFFF;
+            letter-spacing: -0.03em;
+            margin: 0 0 1rem 0;
+        }
+        .gradient-blue {
+            background: linear-gradient(135deg, #60A5FA 0%, #3B82F6 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .gradient-teal {
+            background: linear-gradient(135deg, #2DD4BF 0%, #0D9488 100%);
+            -webkit-background-clip: text;
+            -webkit-text-fill-color: transparent;
+        }
+        .welcome-hero-sub {
+            font-size: 1.05rem;
+            line-height: 1.55;
+            color: #94A3B8;
+            margin-bottom: 1.5rem;
+        }
+
+        /* Centerpiece Map Graphic Container */
+        .welcome-map-card {
+            background: rgba(15, 23, 42, 0.75);
+            border: 1px solid rgba(59, 130, 246, 0.22);
+            border-radius: 14px;
+            padding: 16px;
+            backdrop-filter: blur(14px);
+            -webkit-backdrop-filter: blur(14px);
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.45);
+        }
+        .map-meta-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-between;
+            padding-bottom: 8px;
+            border-bottom: 1px solid rgba(59, 130, 246, 0.15);
+            margin-bottom: 10px;
+            font-size: 0.74rem;
+            color: #94A3B8;
+            font-weight: 600;
+        }
+        .radar-beacon {
+            width: 8px;
+            height: 8px;
+            background-color: #2DD4BF;
+            border-radius: 50%;
+            display: inline-block;
+            box-shadow: 0 0 8px #2DD4BF;
+            animation: beacon-blink 2s infinite ease-in-out;
+        }
+        @keyframes beacon-blink {
+            0%, 100% { opacity: 1; transform: scale(1); }
+            50% { opacity: 0.35; transform: scale(1.3); }
+        }
+
+        /* Map Trace Motion */
+        .map-trace-line {
+            animation: trace-flow 7s linear infinite;
+        }
+        .map-trace-line-alt {
+            animation: trace-flow 9s linear infinite reverse;
+        }
+        @keyframes trace-flow {
+            0% { stroke-dashoffset: 400; }
+            100% { stroke-dashoffset: 0; }
+        }
+        .pulse-ring-slow {
+            animation: ring-pulse 3s infinite ease-out;
+            transform-origin: center;
+        }
+        @keyframes ring-pulse {
+            0% { r: 6; opacity: 0.85; }
+            70% { r: 24; opacity: 0; }
+            100% { r: 24; opacity: 0; }
+        }
+        @media (prefers-reduced-motion: reduce) {
+            .map-trace-line, .map-trace-line-alt, .radar-beacon, .pulse-ring-slow {
+                animation: none !important;
+            }
+        }
+
+        /* Floating Live Activity Panel */
+        .map-floating-kpi-bar {
+            display: flex;
+            align-items: center;
+            justify-content: space-around;
+            background: rgba(8, 20, 38, 0.88);
+            border: 1px solid rgba(45, 212, 191, 0.25);
+            border-radius: 10px;
+            padding: 10px 14px;
+            margin-top: 10px;
+        }
+        .kpi-micro-stat {
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+        }
+        .stat-num {
+            font-size: 1.35rem;
+            font-weight: 800;
+            color: #FFFFFF;
+            line-height: 1.1;
+        }
+        .stat-lbl {
+            font-size: 0.68rem;
+            text-transform: uppercase;
+            letter-spacing: 0.05em;
+            color: #94A3B8;
+            font-weight: 600;
+            margin-top: 2px;
+        }
+        .stat-num-amber { color: #F59E0B; }
+        .stat-num-teal { color: #2DD4BF; }
+        .kpi-divider-line {
+            width: 1px;
+            height: 24px;
+            background: rgba(255, 255, 255, 0.1);
+        }
+
+        /* Section Headings */
+        .section-anchor {
+            padding-top: 3.5rem;
+            margin-bottom: 1.75rem;
+            text-align: center;
+        }
+        .section-tag-label {
+            font-size: 0.72rem;
+            font-weight: 700;
+            text-transform: uppercase;
+            letter-spacing: 0.1em;
+            color: #2DD4BF;
+            margin-bottom: 6px;
+        }
+        .section-main-heading {
+            font-size: 2.1rem;
+            font-weight: 800;
+            color: #FFFFFF;
+            letter-spacing: -0.02em;
+            margin: 0 0 8px 0;
+        }
+        .section-sub-copy {
+            font-size: 0.95rem;
+            color: #94A3B8;
+            max-width: 620px;
+            margin: 0 auto;
+            line-height: 1.5;
+        }
+
+        /* How It Works 3-Step Cards */
+        .step-cards-grid {
+            display: grid;
+            grid-template-columns: repeat(3, 1fr);
+            gap: 18px;
+            margin-bottom: 3rem;
+        }
+        @media (max-width: 768px) {
+            .step-cards-grid {
+                grid-template-columns: 1fr;
+            }
+            .welcome-hero-headline {
+                font-size: 2.4rem !important;
+            }
+        }
+        .welcome-step-card {
+            background: rgba(15, 23, 42, 0.65);
+            border: 1px solid rgba(59, 130, 246, 0.18);
+            border-radius: 14px;
+            padding: 24px 20px;
+            display: flex;
+            flex-direction: column;
+            justify-content: space-between;
+            transition: all 0.2s ease-in-out;
+        }
+        .welcome-step-card:hover {
+            border-color: rgba(45, 212, 191, 0.45);
+            transform: translateY(-3px);
+            box-shadow: 0 8px 24px rgba(0, 0, 0, 0.4);
+        }
+        .step-badge-num {
+            font-size: 0.72rem;
+            font-weight: 800;
+            color: #2DD4BF;
+            background: rgba(45, 212, 191, 0.1);
+            border: 1px solid rgba(45, 212, 191, 0.25);
+            padding: 3px 8px;
+            border-radius: 6px;
+            display: inline-block;
+            margin-bottom: 12px;
+            width: fit-content;
+        }
+        .step-icon-tile {
+            font-size: 1.6rem;
+            margin-bottom: 8px;
+        }
+        .step-card-title {
+            font-size: 1.1rem;
+            font-weight: 700;
+            color: #FFFFFF;
+            margin-bottom: 8px;
+        }
+        .step-card-desc {
+            font-size: 0.85rem;
+            color: #94A3B8;
+            line-height: 1.5;
+        }
+
+        /* Mission 4-Pillars Grid */
+        .pillars-grid {
+            display: grid;
+            grid-template-columns: repeat(2, 1fr);
+            gap: 16px;
+            margin-bottom: 3.5rem;
+        }
+        @media (max-width: 768px) {
+            .pillars-grid {
+                grid-template-columns: 1fr;
+            }
+        }
+        .pillar-card {
+            background: rgba(15, 23, 42, 0.5);
+            border: 1px solid rgba(59, 130, 246, 0.15);
+            border-radius: 12px;
+            padding: 20px;
+        }
+        .pillar-header {
+            display: flex;
+            align-items: center;
+            gap: 10px;
+            margin-bottom: 8px;
+        }
+        .pillar-icon {
+            font-size: 1.25rem;
+        }
+        .pillar-name {
+            font-size: 1rem;
+            font-weight: 700;
+            color: #FFFFFF;
+        }
+        .pillar-detail {
+            font-size: 0.84rem;
+            color: #94A3B8;
+            line-height: 1.5;
+            margin: 0;
+        }
+
+        /* Closing CTA Banner */
+        .welcome-closing-banner {
+            background: linear-gradient(135deg, rgba(37, 99, 235, 0.18) 0%, rgba(15, 118, 110, 0.22) 100%);
+            border: 1px solid rgba(45, 212, 191, 0.3);
+            border-radius: 16px;
+            padding: 38px 24px 20px 24px;
+            text-align: center;
+            margin-bottom: 3rem;
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.35);
+        }
+        .closing-headline {
+            font-size: 2.1rem;
+            font-weight: 900;
+            color: #FFFFFF;
+            letter-spacing: -0.02em;
+            margin: 0 0 10px 0;
+        }
+        .closing-subtext {
+            font-size: 0.96rem;
+            color: #CBD5E1;
+            max-width: 580px;
+            margin: 0 auto 16px auto;
+            line-height: 1.5;
+        }
+
+        /* Footer */
+        .welcome-footer {
+            border-top: 1px solid rgba(255, 255, 255, 0.08);
+            padding-top: 22px;
+            display: flex;
+            flex-direction: column;
+            gap: 14px;
+        }
+        .footer-top-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            flex-wrap: wrap;
+            gap: 12px;
+        }
+        .footer-brand-title {
+            font-size: 1.1rem;
+            font-weight: 800;
+            color: #FFFFFF;
+        }
+        .footer-brand-sub {
+            font-size: 0.76rem;
+            color: #64748B;
+        }
+        .footer-links-row {
+            display: flex;
+            gap: 20px;
+        }
+        .footer-link-a {
+            color: #94A3B8;
+            font-size: 0.8rem;
+            text-decoration: none;
+            transition: color 0.15s;
+        }
+        .footer-link-a:hover {
+            color: #2DD4BF;
+        }
+        .footer-bottom-notice {
+            font-size: 0.73rem;
+            color: #64748B;
+            line-height: 1.45;
+        }
+    </style>
+    """, unsafe_allow_html=True)
+
+    # -------------------------------------------------------------
+    # 1. Top Navigation Bar
+    # -------------------------------------------------------------
+    col_nav_brand, col_nav_links, col_nav_enter = st.columns([2.5, 3.8, 1.7])
+    with col_nav_brand:
+        st.markdown("""
+        <div class="nav-brand-title">
+            <span>🏛️ ASTRA</span>
+            <span class="nav-brand-sub">CIVIC INTEL</span>
+        </div>
+        """, unsafe_allow_html=True)
+    with col_nav_links:
+        st.markdown("""
+        <div class="nav-links-cluster" style="height: 100%; display: flex; align-items: center;">
+            <a href="#how-it-works" class="nav-link-a">How it works</a>
+            <a href="#our-mission" class="nav-link-a">Our mission</a>
+            <a href="#live-operations" class="nav-link-a">Live Activity</a>
+        </div>
+        """, unsafe_allow_html=True)
+    with col_nav_enter:
+        if st.button("Enter ASTRA ➔", key="nav_btn_enter", type="primary", use_container_width=True):
+            st.session_state["portal_mode_radio"] = "🏢 Operations Center (Admin)"
+            st.session_state["admin_nav_radio"] = "Overview"
+            st.session_state["active_view"] = "Overview"
+            st.rerun()
+
+    # -------------------------------------------------------------
+    # 2. Hero Section
+    # -------------------------------------------------------------
+    col_hero_text, col_hero_map = st.columns([52, 48])
+
+    with col_hero_text:
+        st.markdown("""
+        <div class="hero-tag-pill">
+            <span class="radar-beacon"></span>
+            <span>CIVIC INTELLIGENCE PLATFORM • SMART METROPOLIS</span>
+        </div>
+        <h1 class="welcome-hero-headline">
+            Your City.<br>
+            <span class="gradient-blue">Your Voice.</span><br>
+            <span class="gradient-teal">Our Action.</span>
+        </h1>
+        <p class="welcome-hero-sub">
+            Report civic issues, pinpoint problems on the map, and help turn everyday complaints into meaningful action.
+        </p>
+        """, unsafe_allow_html=True)
+
+        col_c1, col_c2, _ = st.columns([1.5, 1.5, 1.2])
+        with col_c1:
+            if st.button("📢 Report an Issue", key="hero_btn_report", type="primary", use_container_width=True):
+                st.session_state["portal_mode_radio"] = "👥 Citizen Registration Portal"
+                st.session_state["citizen_nav_radio"] = "Report a Civic Issue"
+                st.session_state["active_view"] = "Report a Civic Issue"
+                st.rerun()
+        with col_c2:
+            if st.button("🌐 Explore ASTRA", key="hero_btn_explore", use_container_width=True):
+                st.session_state["portal_mode_radio"] = "🏢 Operations Center (Admin)"
+                st.session_state["admin_nav_radio"] = "Overview"
+                st.session_state["active_view"] = "Overview"
+                st.rerun()
+
+        st.markdown("""
+        <div style="margin-top: 1.5rem; display: flex; align-items: center; gap: 10px; font-size: 0.8rem; color: #94A3B8;">
+            <span class="radar-beacon"></span>
+            <span>Active Municipal Intelligence & Triage Desk • Mumbai Division</span>
+        </div>
+        """, unsafe_allow_html=True)
+
+    with col_hero_map:
+        st.markdown(f"""
+        <div class="welcome-map-card" id="live-operations">
+            <div class="map-meta-bar">
+                <div style="display: flex; align-items: center; gap: 8px;">
+                    <span class="radar-beacon"></span>
+                    <span>LIVE URBAN DEFECT GRID • SOUTH BOMBAY</span>
+                </div>
+                <span>18.96° N, 72.82° E</span>
+            </div>
+
+            <svg viewBox="0 0 760 420" style="width: 100%; height: auto; display: block;" xmlns="http://www.w3.org/2000/svg">
+                <defs>
+                    <linearGradient id="routeGrad" x1="0%" y1="0%" x2="100%" y2="0%">
+                        <stop offset="0%" stop-color="#3B82F6"/>
+                        <stop offset="50%" stop-color="#2DD4BF"/>
+                        <stop offset="100%" stop-color="#60A5FA"/>
+                    </linearGradient>
+                    <filter id="glowTeal" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="3" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                    </filter>
+                    <filter id="glowBlue" x="-20%" y="-20%" width="140%" height="140%">
+                        <feGaussianBlur stdDeviation="4" result="blur" />
+                        <feComposite in="SourceGraphic" in2="blur" operator="over" />
+                    </filter>
+                </defs>
+
+                <!-- Blueprint Urban Grid -->
+                <g stroke="rgba(59, 130, 246, 0.08)" stroke-width="1">
+                    <line x1="50" y1="0" x2="50" y2="420" />
+                    <line x1="140" y1="0" x2="140" y2="420" />
+                    <line x1="230" y1="0" x2="230" y2="420" />
+                    <line x1="320" y1="0" x2="320" y2="420" />
+                    <line x1="410" y1="0" x2="410" y2="420" />
+                    <line x1="500" y1="0" x2="500" y2="420" />
+                    <line x1="590" y1="0" x2="590" y2="420" />
+                    <line x1="680" y1="0" x2="680" y2="420" />
+                    <line x1="0" y1="70" x2="760" y2="70" />
+                    <line x1="0" y1="140" x2="760" y2="140" />
+                    <line x1="0" y1="210" x2="760" y2="210" />
+                    <line x1="0" y1="280" x2="760" y2="280" />
+                    <line x1="0" y1="350" x2="760" y2="350" />
+                </g>
+
+                <!-- Coastal Marine Contour -->
+                <path d="M 120 40 Q 140 120 180 180 T 150 290 Q 110 350 170 410" fill="none" stroke="rgba(45, 212, 191, 0.35)" stroke-width="2.5" stroke-dasharray="4 4" />
+
+                <!-- Urban Highway Arteries -->
+                <path d="M 150 380 L 260 310 L 380 280 L 520 190 L 680 140" fill="none" stroke="rgba(59, 130, 246, 0.32)" stroke-width="3" />
+                <path d="M 260 310 L 240 180 L 320 120 L 490 80" fill="none" stroke="rgba(59, 130, 246, 0.25)" stroke-width="2.2" />
+                <path d="M 380 280 L 410 390 L 580 360 L 680 280" fill="none" stroke="rgba(45, 212, 191, 0.28)" stroke-width="2.2" />
+                <path d="M 180 180 L 320 120 L 460 210 L 520 190" fill="none" stroke="rgba(59, 130, 246, 0.28)" stroke-width="2" />
+
+                <!-- Animated Glowing Route Traces -->
+                <path class="map-trace-line" d="M 150 380 L 260 310 L 380 280 L 520 190 L 680 140" fill="none" stroke="url(#routeGrad)" stroke-width="3" stroke-dasharray="24 160" filter="url(#glowBlue)" />
+                <path class="map-trace-line-alt" d="M 380 280 L 410 390 L 580 360 L 680 280" fill="none" stroke="#2DD4BF" stroke-width="2.5" stroke-dasharray="16 140" filter="url(#glowTeal)" />
+
+                <!-- Ward Hotspot Nodes -->
+                <circle cx="150" cy="380" r="16" fill="none" stroke="#3B82F6" stroke-width="1.2" class="pulse-ring-slow" opacity="0.6" />
+                <circle cx="150" cy="380" r="5" fill="#3B82F6" filter="url(#glowBlue)" />
+                <text x="120" y="405" fill="#94A3B8" font-size="10" font-family="monospace">Ward A (Colaba)</text>
+
+                <circle cx="260" cy="310" r="18" fill="none" stroke="#2DD4BF" stroke-width="1.2" class="pulse-ring-slow" opacity="0.7" />
+                <circle cx="260" cy="310" r="5.5" fill="#2DD4BF" filter="url(#glowTeal)" />
+                <text x="240" y="295" fill="#E2E8F0" font-size="11" font-weight="600">Ward D (Malabar Hill)</text>
+
+                <circle cx="380" cy="280" r="20" fill="none" stroke="#3B82F6" stroke-width="1.2" class="pulse-ring-slow" opacity="0.6" />
+                <circle cx="380" cy="280" r="6" fill="#60A5FA" filter="url(#glowBlue)" />
+                <text x="360" y="260" fill="#E2E8F0" font-size="11" font-weight="600">Ward F/S (Parel)</text>
+
+                <circle cx="240" cy="180" r="15" fill="none" stroke="#2DD4BF" stroke-width="1" class="pulse-ring-slow" opacity="0.6" />
+                <circle cx="240" cy="180" r="5" fill="#2DD4BF" filter="url(#glowTeal)" />
+                <text x="180" y="170" fill="#94A3B8" font-size="10" font-family="monospace">Ward G/S (Worli)</text>
+
+                <circle cx="520" cy="190" r="22" fill="none" stroke="#3B82F6" stroke-width="1.4" class="pulse-ring-slow" opacity="0.7" />
+                <circle cx="520" cy="190" r="6.5" fill="#3B82F6" filter="url(#glowBlue)" />
+                <text x="500" y="170" fill="#E2E8F0" font-size="11" font-weight="700">Ward G/N (Dadar)</text>
+            </svg>
+
+            <!-- Floating Real Data Activity Panel -->
+            <div class="map-floating-kpi-bar">
+                <div class="kpi-micro-stat">
+                    <span class="stat-num">{c_total}</span>
+                    <span class="stat-lbl">Issues Logged</span>
+                </div>
+                <div class="kpi-divider-line"></div>
+                <div class="kpi-micro-stat">
+                    <span class="stat-num stat-num-amber">{c_open}</span>
+                    <span class="stat-lbl">In Active Triage</span>
+                </div>
+                <div class="kpi-divider-line"></div>
+                <div class="kpi-micro-stat">
+                    <span class="stat-num stat-num-teal">{c_resolved}</span>
+                    <span class="stat-lbl">Resolved</span>
+                </div>
+            </div>
+        </div>
+        """, unsafe_allow_html=True)
+
+    # -------------------------------------------------------------
+    # 3. How It Works Section
+    # -------------------------------------------------------------
+    st.markdown("""
+    <div id="how-it-works" class="section-anchor">
+        <div class="section-tag-label">ENGINEERED WORKFLOW</div>
+        <h2 class="section-main-heading">How ASTRA Works</h2>
+        <p class="section-sub-copy">Three intelligent steps from citizen defect capture to verified municipal resolution</p>
+    </div>
+
+    <div class="step-cards-grid">
+        <div class="welcome-step-card">
+            <div>
+                <span class="step-badge-num">01 / REPORT</span>
+                <div class="step-icon-tile">🎙️</div>
+                <div class="step-card-title">Multimodal Intake</div>
+                <p class="step-card-desc">
+                    Describe the defect in text, attach camera photo evidence, or speak in Hindi or Marathi. ASTRA's AI automatically categorizes and gauges urgency.
+                </p>
+            </div>
+        </div>
+
+        <div class="welcome-step-card">
+            <div>
+                <span class="step-badge-num">02 / LOCATE</span>
+                <div class="step-icon-tile">📍</div>
+                <div class="step-card-title">Geographic Precision</div>
+                <p class="step-card-desc">
+                    Capture precise GPS coordinates with one click or confirm street landmarks and municipal ward boundaries for exact field squad navigation.
+                </p>
+            </div>
+        </div>
+
+        <div class="welcome-step-card">
+            <div>
+                <span class="step-badge-num">03 / RESOLVE</span>
+                <div class="step-icon-tile">⚡</div>
+                <div class="step-card-title">Accountable Action</div>
+                <p class="step-card-desc">
+                    Municipal engineering units verify defects with computer vision, dispatch work orders with strict SLA targets, and update progress in real time.
+                </p>
+            </div>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # -------------------------------------------------------------
+    # 4. Our Mission & Civic Intelligence Pillars
+    # -------------------------------------------------------------
+    st.markdown("""
+    <div id="our-mission" class="section-anchor">
+        <div class="section-tag-label">CIVIC TECHNOLOGY MISSION</div>
+        <h2 class="section-main-heading">Built for the Future of Smart Cities</h2>
+        <p class="section-sub-copy">Transforming fragmented civic grievances into transparent, automated municipal intelligence</p>
+    </div>
+
+    <div class="pillars-grid">
+        <div class="pillar-card">
+            <div class="pillar-header">
+                <span class="pillar-icon">👁️</span>
+                <span class="pillar-name">Computer Vision & Speech AI</span>
+            </div>
+            <p class="pillar-detail">
+                YOLO11n defect detection identifies road potholes, damaged streetlights, and pipe leaks. IndicConformer models transcribe Hindi and Marathi audio with high accuracy.
+            </p>
+        </div>
+
+        <div class="pillar-card">
+            <div class="pillar-header">
+                <span class="pillar-icon">⏱️</span>
+                <span class="pillar-name">Strict Municipal SLA Deadlines</span>
+            </div>
+            <p class="pillar-detail">
+                Defect severity dictates real-time resolution targets (Critical: 24h, High: 48h, Medium: 72h). Proactive alerts prevent unattended municipal backlog.
+            </p>
+        </div>
+
+        <div class="pillar-card">
+            <div class="pillar-header">
+                <span class="pillar-icon">🗺️</span>
+                <span class="pillar-name">Real-Time Spatial Clustering</span>
+            </div>
+            <p class="pillar-detail">
+                Ward-level GIS defect heatmaps identify persistent infrastructure failure patterns, enabling proactive municipal maintenance before public disruption.
+            </p>
+        </div>
+
+        <div class="pillar-card">
+            <div class="pillar-header">
+                <span class="pillar-icon">🔍</span>
+                <span class="pillar-name">Radical Citizen Transparency</span>
+            </div>
+            <p class="pillar-detail">
+                Every report generates a permanent Case ID (AST-YYYYMMDD-XXXX) allowing citizens to track squad assignments, dispatcher notes, and closure proofs.
+            </p>
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
+
+    # -------------------------------------------------------------
+    # 5. Closing CTA Banner
+    # -------------------------------------------------------------
+    st.markdown("""
+    <div class="welcome-closing-banner">
+        <h2 class="closing-headline">Better streets start with being heard.</h2>
+        <p class="closing-subtext">Join active citizens and municipal teams transforming our city into a cleaner, safer, and more responsive metropolis.</p>
+    </div>
+    """, unsafe_allow_html=True)
+
+    col_cl1, col_cl2, col_cl3 = st.columns([1.5, 2, 1.5])
+    with col_cl2:
+        if st.button("🚀 Get Started with ASTRA", key="closing_btn_get_started", type="primary", use_container_width=True):
+            st.session_state["portal_mode_radio"] = "👥 Citizen Registration Portal"
+            st.session_state["citizen_nav_radio"] = "Report a Civic Issue"
+            st.session_state["active_view"] = "Report a Civic Issue"
+            st.rerun()
+
+    # -------------------------------------------------------------
+    # 6. Minimal Footer
+    # -------------------------------------------------------------
+    st.markdown("""
+    <div class="welcome-footer">
+        <div class="footer-top-row">
+            <div>
+                <div class="footer-brand-title">🏛️ ASTRA</div>
+                <div class="footer-brand-sub">Civic Grievance Intelligence & Municipal Operations Center</div>
+            </div>
+            <div class="footer-links-row">
+                <a href="#how-it-works" class="footer-link-a">How it works</a>
+                <a href="#our-mission" class="footer-link-a">Our mission</a>
+                <a href="#live-operations" class="footer-link-a">Live Activity</a>
+            </div>
+        </div>
+        <div class="footer-bottom-notice">
+            ASTRA is an independent civic-technology operations platform engineered for municipal defect triage and public accountability. All grievance records are cryptographically verified.
+        </div>
+    </div>
+    """, unsafe_allow_html=True)
 
 
 # =====================================================================
@@ -1606,11 +2380,49 @@ def render_system_analytics():
 # MAIN APPLICATION CONTROLLER
 # =====================================================================
 def main():
+    # Handle incoming query parameters for direct links while preserving navigation
+    q_params = st.query_params
+    view_param = q_params.get("view", "")
+    if view_param and "initialized_from_query" not in st.session_state:
+        v = view_param.lower().strip()
+        if v in ("admin", "overview", "dashboard"):
+            st.session_state["portal_mode_radio"] = "🏢 Operations Center (Admin)"
+            st.session_state["admin_nav_radio"] = "Overview"
+            st.session_state["active_view"] = "Overview"
+        elif v in ("map", "live_map"):
+            st.session_state["portal_mode_radio"] = "🏢 Operations Center (Admin)"
+            st.session_state["admin_nav_radio"] = "Live Map"
+            st.session_state["active_view"] = "Live Map"
+        elif v in ("analytics", "reports"):
+            st.session_state["portal_mode_radio"] = "🏢 Operations Center (Admin)"
+            st.session_state["admin_nav_radio"] = "System Analytics"
+            st.session_state["active_view"] = "System Analytics"
+        elif v in ("report", "citizen", "complaint"):
+            st.session_state["portal_mode_radio"] = "👥 Citizen Registration Portal"
+            st.session_state["citizen_nav_radio"] = "Report a Civic Issue"
+            st.session_state["active_view"] = "Report a Civic Issue"
+        elif v in ("track", "status"):
+            st.session_state["portal_mode_radio"] = "👥 Citizen Registration Portal"
+            st.session_state["citizen_nav_radio"] = "Track My Complaint"
+            st.session_state["active_view"] = "Track My Complaint"
+        elif v in ("welcome", "home", "landing"):
+            st.session_state["portal_mode_radio"] = "✨ Welcome & Overview"
+            st.session_state["active_view"] = "Welcome"
+        st.session_state["initialized_from_query"] = True
+
+    # Ensure initial portal mode defaults to Welcome
+    if "portal_mode_radio" not in st.session_state:
+        st.session_state["portal_mode_radio"] = "✨ Welcome & Overview"
+    if "active_view" not in st.session_state:
+        st.session_state["active_view"] = "Welcome"
+
     render_sidebar()
 
-    active_view = st.session_state.get("active_view", "Overview")
+    active_view = st.session_state.get("active_view", "Welcome")
 
-    if active_view == "Overview":
+    if active_view == "Welcome":
+        render_welcome_page()
+    elif active_view == "Overview":
         render_admin_dashboard()
     elif active_view == "Live Map":
         render_full_live_map()
@@ -1623,8 +2435,9 @@ def main():
     elif active_view == "Track My Complaint":
         render_track_complaint()
     else:
-        render_admin_dashboard()
+        render_welcome_page()
 
 
 if __name__ == "__main__":
     main()
+
